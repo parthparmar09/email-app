@@ -1,77 +1,142 @@
-const Email = require("../models/emailModel");
+const Email = require("../models/Email");
+const { sendSuccess } = require("../utils/helperFunctions");
 
-const sendEmail = async (req, res, next) => {
-  const { senderId, recipientIds, ccIds, bccIds, subject, body, attachments } =
+const createEmail = async (req, res) => {
+  const { isDraft, recipientIds, ccIds, bccIds, subject, body, attachments } =
     req.body;
 
-  const newEmail = new Email({
+  const senderId = req.user._id;
+
+  const userMetadata = recipientIds.reduce((acc, recipientId) => {
+    acc[recipientId] = {
+      isRead: false,
+      isStarred: false,
+      isDeleted: false,
+      isImportant: false,
+      labels: [],
+    };
+    return acc;
+  }, {});
+
+  const email = new Email({
     senderId,
+    isDraft,
     recipientIds,
     ccIds,
     bccIds,
     subject,
     body,
     attachments,
+    userMetadata,
   });
-  await newEmail.save();
 
-  res.status(201).json({ message: "Email sent successfully" });
+  await email.save();
+  sendSuccess(res, "Email Created", email);
 };
 
-const getInbox = async (req, res, next) => {
+const getEmails = async (req, res) => {
   const userId = req.user._id;
+  const { page = 1, limit = 10, category, searchTerm } = req.query;
+  let query = { isDraft: false }; // Ensure emails fetched are not drafts
 
-  const inboxEmails = await Email.find({
-    recipientIds: userId,
-    isDraft: false,
-  });
-  res.json(inboxEmails);
+  switch (category) {
+    case "starred":
+      query[`userMetadata.${userId}.isStarred`] = true;
+      break;
+    case "trashed":
+      query[`userMetadata.${userId}.isTrashed`] = true;
+      break;
+    case "important":
+      query[`userMetadata.${userId}.isImportant`] = true;
+      break;
+    case "draft":
+      query.isDraft = true;
+      break;
+    default:
+      break;
+  }
+
+  // Add filters based on search term
+  if (searchTerm) {
+    const regex = new RegExp(searchTerm, "i");
+    query.$or = [{ subject: regex }, { body: regex }];
+  }
+
+  let emails;
+  if (category === "sent") {
+    // Fetch sent emails
+    emails = await Email.find({ senderId: userId, isDraft: false })
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+  } else {
+    // Fetch all emails with applied filters
+    query.$or = query.$or || [];
+    query.$or.push({ [`userMetadata.${userId}`]: { $exists: true } });
+    emails = await Email.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+  }
+
+  sendSuccess(res, "Emails Fetched", emails);
 };
 
-const getSent = async (req, res, next) => {
-  const userId = req.user._id;
-
-  const sentEmails = await Email.find({ senderId: userId, isDraft: false });
-  res.json(sentEmails);
+const getEmailById = async (req, res) => {
+  const email = await Email.findById(req.params.id);
+  if (!email) {
+    throw new MyError(404, "Email not found");
+  }
+  sendSuccess(res, "Email fetched", email);
 };
 
-const getDrafts = async (req, res, next) => {
-  const userId = req.user._id;
-
-  const draftEmails = await Email.find({ senderId: userId, isDraft: true });
-  res.json(draftEmails);
-};
-
-const updateEmail = async (req, res, next) => {
-  const emailId = req.params.id;
-  const updateData = req.body;
-
-  const updatedEmail = await Email.findByIdAndUpdate(emailId, updateData, {
+const updateEmail = async (req, res) => {
+  const email = await Email.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
-  if (!updatedEmail) {
-    return res.status(404).json({ message: "Email not found" });
+  if (!email) {
+    throw new MyError(404, "Email not found");
   }
-
-  res.json(updatedEmail);
+  sendSuccess(res, "Email Updated", email);
 };
 
-const deleteEmail = async (req, res, next) => {
-  const emailId = req.params.id;
+const deleteEmail = async (req, res) => {
+  const email = await Email.findByIdAndDelete(req.params.id);
+  if (!email) {
+    throw new MyError(404, "Email not found");
+  }
+  res.status(200).json({ message: "Email deleted" });
+};
 
-  const deletedEmail = await Email.findByIdAndDelete(emailId);
-  if (!deletedEmail) {
-    return res.status(404).json({ message: "Email not found" });
+const updateRecipientMetadata = async (req, res) => {
+  const { emailId } = req.params;
+  const userId = req.user._id;
+  const update = req.body;
+
+  const email = await Email.findById(emailId);
+
+  if (!email) {
+    throw new MyError(404, "Email not found");
   }
 
-  res.json({ message: "Email deleted successfully" });
+  if (!email.userMetadata[userId]) {
+    throw new MyError(404, "Recipient not found");
+  }
+
+  email.userMetadata[userId] = {
+    ...email.userMetadata[userId],
+    ...update,
+  };
+
+  await email.save();
+  res.status(200).json(email);
 };
 
 module.exports = {
-  sendEmail,
-  getInbox,
-  getSent,
-  getDrafts,
+  createEmail,
+  getEmails,
+  getEmailById,
   updateEmail,
   deleteEmail,
+  updateRecipientMetadata,
 };

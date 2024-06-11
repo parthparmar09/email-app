@@ -1,25 +1,31 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const userMetadataSchema = new Schema({
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const userMetadataSchema = new Schema(
+  {
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+    isStarred: {
+      type: Boolean,
+      default: false,
+    },
+    isTrashed: {
+      type: Boolean,
+      default: false,
+    },
+    isImportant: {
+      type: Boolean,
+      default: false,
+    },
+    // labels: {
+    //   type: [String],
+    //   default: [],
+    // },
   },
-  isRead: {
-    type: Boolean,
-    default: false,
-  },
-  isStarred: {
-    type: Boolean,
-    default: false,
-  },
-  isDeleted: {
-    type: Boolean,
-    default: false,
-  },
-});
+  { _id: false }
+);
 
 const emailSchema = new Schema({
   senderId: {
@@ -72,7 +78,11 @@ const emailSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  userMetadata: [userMetadataSchema],
+  userMetadata: {
+    type: Map,
+    of: userMetadataSchema,
+    default: {},
+  },
 });
 
 const Email = mongoose.model("Email", emailSchema);

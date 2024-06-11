@@ -1,18 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const {
-  sendEmail,
-  getInbox,
-  getSent,
-  getDrafts,
-  updateEmail,
+  createEmail,
   deleteEmail,
+  getEmails,
+  updateEmail,
+  getEmailById,
+  updateRecipientMetadata,
 } = require("../controllers/emailController");
 
-router.post("/", sendEmail);
-router.get("/inbox", getInbox);
-router.get("/sent", getSent);
-router.get("/drafts", getDrafts);
-router.route("/:id").put(updateEmail).delete(deleteEmail);
+router.route("/").post(createEmail).get(getEmails);
+
+router.route("/:id").get(getEmailById).put(updateEmail).delete(deleteEmail);
+
+router.patch("/:emailId/recipientUpdate", updateRecipientMetadata);
 
 module.exports = router;
