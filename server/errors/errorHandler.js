@@ -23,6 +23,11 @@ const errorHandler = (err, req, res, next) => {
     message = "Email already exists";
   }
 
+  if (message.includes(":")) {
+    const arr = message.split(":");
+    message = arr[arr.length - 1].trim();
+  }
+
   res.status(status).json({ success: false, message });
 };
 

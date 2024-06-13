@@ -1,18 +1,21 @@
-const jwt = require("jsonwebtoken");
 const User = require("../models/userModel.js");
+const { sendSuccess, createJwt } = require("../utils/helperFunctions");
+const MyError = require("../errors/MyError");
 
 const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
-    return res.status(400).json({ message: "User already exists" });
+    throw new MyError(400, "User already exists");
   }
 
   const newUser = new User({ username, email, password });
   await newUser.save();
 
-  res.status(201).json({ message: "User created successfully" });
+  const token = createJwt(newUser._id);
+
+  sendSuccess(res, "Signed up", { token, newUser });
 };
 
 const login = async (req, res, next) => {
@@ -20,19 +23,23 @@ const login = async (req, res, next) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    return res.status(401).json({ message: "Invalid email or password" });
+    throw new MyError(401, "Invalid email or password");
   }
 
-  const isPasswordValid = user.comparePassword(password);
+  const isPasswordValid = await user.comparePassword(password);
   if (!isPasswordValid) {
-    return res.status(401).json({ message: "Invalid email or password" });
+    throw new MyError(401, "Invalid email or password");
   }
 
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "1d",
-  });
+  const token = createJwt(user._id);
 
-  res.json({ token, user });
+  sendSuccess(res, "Logged in", { token, user });
 };
 
 module.exports = { signup, login };
+
+//666a8f1a53704f3458b29a1a
+//666a8f3d61b0e48b0c96163a
+//666a8f5361b0e48b0c96163d
+//666a8f6461b0e48b0c961640
+//666a95529a507f82b10b7bbe

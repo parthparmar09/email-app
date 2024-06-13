@@ -19,10 +19,10 @@ const userMetadataSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    // labels: {
-    //   type: [String],
-    //   default: [],
-    // },
+    labels: {
+      type: [String],
+      default: [],
+    },
   },
   { _id: false }
 );
@@ -31,7 +31,7 @@ const emailSchema = new Schema({
   senderId: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: [true, "Sender id is required"],
   },
   isDraft: {
     type: Boolean,
@@ -41,7 +41,7 @@ const emailSchema = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: [true, "Recipient is required"],
     },
   ],
   ccIds: [

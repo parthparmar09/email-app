@@ -1,5 +1,6 @@
-const Email = require("../models/Email");
+const Email = require("../models/emailModel");
 const { sendSuccess } = require("../utils/helperFunctions");
+const MyError = require("../errors/MyError");
 
 const createEmail = async (req, res) => {
   const { isDraft, recipientIds, ccIds, bccIds, subject, body, attachments } =
@@ -7,7 +8,8 @@ const createEmail = async (req, res) => {
 
   const senderId = req.user._id;
 
-  const userMetadata = recipientIds.reduce((acc, recipientId) => {
+  const allRecipientIds = [...recipientIds, ...ccIds, ...bccIds];
+  const userMetadata = allRecipientIds.reduce((acc, recipientId) => {
     acc[recipientId] = {
       isRead: false,
       isStarred: false,
@@ -36,7 +38,7 @@ const createEmail = async (req, res) => {
 
 const getEmails = async (req, res) => {
   const userId = req.user._id;
-  const { page = 1, limit = 10, category, searchTerm } = req.query;
+  const { page = 1, limit = 8, category, searchTerm } = req.query;
   let query = { isDraft: false }; // Ensure emails fetched are not drafts
 
   switch (category) {
@@ -52,6 +54,10 @@ const getEmails = async (req, res) => {
     case "draft":
       query.isDraft = true;
       break;
+    case "sent":
+      query.isDraft = false;
+      query.senderId = userId;
+      break;
     default:
       break;
   }
@@ -59,27 +65,43 @@ const getEmails = async (req, res) => {
   // Add filters based on search term
   if (searchTerm) {
     const regex = new RegExp(searchTerm, "i");
-    query.$or = [{ subject: regex }, { body: regex }];
+    query.$and = [{ subject: regex }];
   }
 
   let emails;
-  if (category === "sent") {
-    // Fetch sent emails
-    emails = await Email.find({ senderId: userId, isDraft: false })
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
-  } else {
-    // Fetch all emails with applied filters
-    query.$or = query.$or || [];
-    query.$or.push({ [`userMetadata.${userId}`]: { $exists: true } });
-    emails = await Email.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+  let total = 0;
+  // if (category === "sent") {
+  //   // Fetch the sent emails only
+  //   total = await Email.countDocuments({ senderId: userId, isDraft: false });
+  //   emails = await Email.find({ senderId: userId, isDraft: false })
+  //     .populate("senderId", "username image  email")
+  //     .populate("recipientIds", "username image  email")
+  //     .populate("ccIds", "username image  email")
+  //     .sort({ createdAt: -1 })
+  //     .skip((page - 1) * limit)
+  //     .limit(limit);
+  // } else {
+  // Fetch all emails with applied filters
+
+  if (category !== "sent") {
+    query.$and = query.$and || [];
+    query.$and.push({ [`userMetadata.${userId}`]: { $exists: true } });
   }
 
-  sendSuccess(res, "Emails Fetched", emails);
+  total = await Email.countDocuments(query);
+  emails = await Email.find(query)
+    .populate("senderId", "username image  email")
+    .populate("recipientIds", "username image  email")
+    .populate("ccIds", "username image  email")
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+  // }
+
+  if (emails.length === 0) {
+    throw new MyError(404, "No Emails Found");
+  }
+  sendSuccess(res, "Emails Fetched", { emails, total });
 };
 
 const getEmailById = async (req, res) => {
@@ -105,7 +127,7 @@ const deleteEmail = async (req, res) => {
   if (!email) {
     throw new MyError(404, "Email not found");
   }
-  res.status(200).json({ message: "Email deleted" });
+  sendSuccess(res, "Email Deleted");
 };
 
 const updateRecipientMetadata = async (req, res) => {
@@ -129,7 +151,7 @@ const updateRecipientMetadata = async (req, res) => {
   };
 
   await email.save();
-  res.status(200).json(email);
+  sendSuccess(res, "Email Updated", email);
 };
 
 module.exports = {

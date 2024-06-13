@@ -13,6 +13,6 @@ router.route("/").post(createEmail).get(getEmails);
 
 router.route("/:id").get(getEmailById).put(updateEmail).delete(deleteEmail);
 
-router.patch("/:emailId/recipientUpdate", updateRecipientMetadata);
+router.patch("/:emailId/metadata", updateRecipientMetadata);
 
 module.exports = router;
