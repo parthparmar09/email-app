@@ -8,7 +8,7 @@ const createEmail = async (req, res) => {
 
   const senderId = req.user._id;
 
-  const allRecipientIds = [...recipientIds, ...ccIds, ...bccIds];
+  const allRecipientIds = [...recipientIds, ...ccIds, ...bccIds, senderId];
   const userMetadata = allRecipientIds.reduce((acc, recipientId) => {
     acc[recipientId] = {
       isRead: false,
