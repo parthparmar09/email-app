@@ -25,13 +25,13 @@ const ProtectedRoute = () => {
     return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <Navigate to="/login" state={{ from: location }} />;
-  }
+  // if (error) {
+  //   return <Navigate to="/login" state={{ from: location }} />;
+  // }
 
-  if (!user && !isLoading) {
-    return <Navigate to="/login" state={{ from: location }} />;
-  }
+  // if (!user && !isLoading) {
+  //   return <Navigate to="/login" state={{ from: location }} />;
+  // }
 
   return <Outlet />;
 };

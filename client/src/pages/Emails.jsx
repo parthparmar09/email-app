@@ -1,5 +1,12 @@
+import { Main } from "@layouts";
+import EmailDisplay from "../layouts/EmailDisplay";
+
 function Emails() {
-  return <div>Emails</div>;
+  return (
+    <Main>
+      <EmailDisplay />
+    </Main>
+  );
 }
 
 export default Emails;
