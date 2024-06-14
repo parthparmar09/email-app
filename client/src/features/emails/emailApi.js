@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "/api",
+  baseUrl: import.meta.env.VITE_BASE_URL + "/api",
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -26,7 +26,10 @@ export const emailApi = createApi({
         result
           ? [
               { type: "EmailList", id: category },
-              ...result.emails.map(({ _id }) => ({ type: "Email", id: _id })),
+              ...result.data.emails.map(({ _id }) => ({
+                type: "Email",
+                id: _id,
+              })),
             ]
           : [{ type: "EmailList", id: category }],
     }),

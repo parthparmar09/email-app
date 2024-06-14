@@ -1,9 +1,9 @@
-*{
-    margin:0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto';
-    /* border: 1px solid black; */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Roboto";
+  /* border: 1px solid black; */
 }
 
 /* *::-webkit-scrollbar {
@@ -11,10 +11,8 @@
   }
  */
 
-
-.flex-centered{
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.flex-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-

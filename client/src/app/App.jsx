@@ -29,6 +29,7 @@ const theme = createTheme({
         root: {
           borderRadius: 10,
           boxShadow: "none",
+          textTransform: "none",
           "&:hover": {
             boxShadow: "none",
           },

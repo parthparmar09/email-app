@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { CategoryList, ComposeButton, UserLabels } from "@components";
+import { CategoryList, ComposeButton, UserLabels, UserMenu } from "@components";
 
 function SideBar({ sx }) {
   return (
@@ -8,15 +8,17 @@ function SideBar({ sx }) {
         ...sx,
         display: "flex",
         flexDirection: "column",
+
         gap: 1,
       }}
     >
-      <Typography variant="h4" fontWeight="bold">
+      <Typography variant="h4" fontWeight="bold" color="divider">
         MailHub
       </Typography>
       <ComposeButton />
       <CategoryList />
       <UserLabels />
+      <UserMenu />
     </Box>
   );
 }

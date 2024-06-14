@@ -12,8 +12,8 @@ function Main({ children }) {
         bgcolor: "grey.main",
       }}
     >
-      <SideBar sx={{ flex: 0.2 }} />
-      <Box sx={{ flexGrow: 1, height: 1 }}>{children}</Box>
+      <SideBar sx={{ flex: 0.15 }} />
+      <Box sx={{ flex: 0.85, height: 1 }}>{children}</Box>
     </Box>
   );
 }
