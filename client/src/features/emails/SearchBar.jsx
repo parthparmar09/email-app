@@ -1,5 +1,5 @@
-import { SearchRounded } from "@mui/icons-material";
-import { InputAdornment, TextField, styled } from "@mui/material";
+import { CancelRounded, SearchRounded } from "@mui/icons-material";
+import { IconButton, InputAdornment, TextField } from "@mui/material";
 
 function SearchBar({ searchTerm, setSearchTerm }) {
   return (
@@ -18,6 +18,14 @@ function SearchBar({ searchTerm, setSearchTerm }) {
         startAdornment: (
           <InputAdornment position="start">
             <SearchRounded />
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="end">
+            <CancelRounded
+              sx={{ display: searchTerm ? "block" : "none", cursor: "pointer" }}
+              onClick={() => setSearchTerm("")}
+            />
           </InputAdornment>
         ),
       }}

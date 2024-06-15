@@ -8,15 +8,15 @@ function UserMenu() {
         mt: "auto",
         justifyContent: "flex-start",
         gap: 1,
-        borderTop: "1px dashed",
+        borderTop: 2,
         borderColor: "divider",
-        pt: 1,
+        p: 1,
       }}
     >
       <Avatar />
       <Box>
         <Typography fontWeight="500">Parth Parmar</Typography>
-        <Typography variant="subtitle1" fontStyle="italic">
+        <Typography variant="subtitle2" fontStyle="italic">
           parth@gmail.com
         </Typography>
       </Box>

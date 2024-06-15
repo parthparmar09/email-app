@@ -6,10 +6,12 @@ import {
   ReportRounded,
   LabelImportantRounded,
   StarRounded,
+  InboxRounded,
 } from "@mui/icons-material";
 
 export const EmailCategories = {
-  Inbox: <EmailRounded />,
+  All: <EmailRounded />,
+  Inbox: <InboxRounded />,
   Sent: <SendRounded />,
   Drafts: <DraftsRounded />,
   Trash: <DeleteRounded />,

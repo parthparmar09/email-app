@@ -12,7 +12,7 @@ const theme = createTheme({
     secondary: {
       light: "#003285",
       main: "#2A629A",
-      dark: "#3572EF",
+      dark: "#4F93CC",
       contrastText: "#fff",
     },
     grey: {
@@ -21,7 +21,7 @@ const theme = createTheme({
   },
 
   typography: {
-    fontFamily: "Roboto",
+    fontFamily: "Poppins",
   },
   components: {
     MuiButton: {

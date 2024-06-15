@@ -38,20 +38,24 @@ const createEmail = async (req, res) => {
 
 const getEmails = async (req, res) => {
   const userId = req.user._id;
-  const { page = 1, limit = 8, category, searchTerm } = req.query;
-  let query = { isDraft: false }; // Ensure emails fetched are not drafts
+  const { page = 1, limit = 12, category, searchTerm } = req.query;
+  let query = {};
 
   switch (category) {
+    case "inbox":
+      query.isDraft = false;
+      query.senderId = { $ne: userId };
+      break;
     case "starred":
       query[`userMetadata.${userId}.isStarred`] = true;
       break;
-    case "trashed":
+    case "trash":
       query[`userMetadata.${userId}.isTrashed`] = true;
       break;
     case "important":
       query[`userMetadata.${userId}.isImportant`] = true;
       break;
-    case "draft":
+    case "drafts":
       query.isDraft = true;
       break;
     case "sent":
@@ -70,18 +74,6 @@ const getEmails = async (req, res) => {
 
   let emails;
   let total = 0;
-  // if (category === "sent") {
-  //   // Fetch the sent emails only
-  //   total = await Email.countDocuments({ senderId: userId, isDraft: false });
-  //   emails = await Email.find({ senderId: userId, isDraft: false })
-  //     .populate("senderId", "username image  email")
-  //     .populate("recipientIds", "username image  email")
-  //     .populate("ccIds", "username image  email")
-  //     .sort({ createdAt: -1 })
-  //     .skip((page - 1) * limit)
-  //     .limit(limit);
-  // } else {
-  // Fetch all emails with applied filters
 
   if (category !== "sent") {
     query.$and = query.$and || [];

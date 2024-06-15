@@ -1,5 +1,6 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { CategoryList, ComposeButton, UserLabels, UserMenu } from "@components";
+import logo from "@assets/logo.png";
 
 function SideBar({ sx }) {
   return (
@@ -12,9 +13,7 @@ function SideBar({ sx }) {
         gap: 1,
       }}
     >
-      <Typography variant="h4" fontWeight="bold" color="divider">
-        MailHub
-      </Typography>
+      <Box component="img" src={logo} sx={{ height: 60 }} />
       <ComposeButton />
       <CategoryList />
       <UserLabels />

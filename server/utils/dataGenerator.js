@@ -29,7 +29,7 @@ const generateRandomUserMetadata = (userIds) => {
   }, {});
 };
 
-const generateRandomEmails = async (count = 50) => {
+const generateRandomEmails = async (count = 100) => {
   for (let i = 0; i < count; i++) {
     const senderId = faker.helpers.arrayElement(userIds);
     const recipientIds = faker.helpers.arrayElements(
@@ -45,7 +45,7 @@ const generateRandomEmails = async (count = 50) => {
       faker.datatype.number({ min: 0, max: userIds.length })
     );
     const userMetadata = generateRandomUserMetadata([
-      ...new Set([...recipientIds, ...ccIds, ...bccIds]),
+      ...new Set([...recipientIds, ...ccIds, ...bccIds, ...senderId]),
     ]);
 
     const email = new Email({
