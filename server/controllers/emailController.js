@@ -39,7 +39,7 @@ const createEmail = async (req, res) => {
 const getEmails = async (req, res) => {
   const userId = req.user._id;
   const { page = 1, limit = 12, category, searchTerm } = req.query;
-  let query = {};
+  let query = { $and: [{ [`userMetadata.${userId}`]: { $exists: true } }] };
 
   switch (category) {
     case "inbox":
@@ -74,11 +74,6 @@ const getEmails = async (req, res) => {
 
   let emails;
   let total = 0;
-
-  if (category !== "sent") {
-    query.$and = query.$and || [];
-    query.$and.push({ [`userMetadata.${userId}`]: { $exists: true } });
-  }
 
   total = await Email.countDocuments(query);
   emails = await Email.find(query)

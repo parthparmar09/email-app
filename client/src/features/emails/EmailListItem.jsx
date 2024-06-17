@@ -17,13 +17,13 @@ function EmailListItem({ email }) {
 
   const handleEmailClick = () => {
     dispatch(selectEmail(email));
-    setIsRead(true);
-    updateEmailMetadata({
-      emailId: email._id,
-      update: {
-        isRead: true,
-      },
-    });
+    !isRead &&
+      updateEmailMetadata({
+        emailId: email._id,
+        update: {
+          isRead: true,
+        },
+      });
   };
 
   return (
@@ -46,8 +46,8 @@ function EmailListItem({ email }) {
           color={!isRead && "primary.light"}
           fontWeight={!isRead && "600"}
         >
-          {email.subject.length > 25
-            ? email.subject.substr(0, 25) + " ..."
+          {email.subject.length > 20
+            ? email.subject.substr(0, 20) + " ..."
             : email.subject}
         </Typography>
       </Box>

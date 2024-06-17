@@ -14,7 +14,7 @@ const errorHandler = (err, req, res, next) => {
     console.log(err);
   }
 
-  if (message === "jwt malformed") {
+  if (message === "jwt malformed" || message === "jwt expired") {
     status = 401;
     message = "Please Login";
   }

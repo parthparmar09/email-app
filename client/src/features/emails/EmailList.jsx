@@ -13,7 +13,7 @@ function EmailList({ sx }) {
   const [searchTerm, setSearchTerm] = useState("");
   const {
     data: emailData,
-    isLoading,
+    isFetching,
     isError,
     refetch,
   } = useGetEmailsQuery({ category: category.toLowerCase(), searchTerm, page });
@@ -33,10 +33,14 @@ function EmailList({ sx }) {
     console.log(emailData?.data);
   }, [emailData]);
 
+  useEffect(() => {
+    console.log(isFetching);
+  }, [isFetching]);
+
   return (
     <Paper elevation={0} sx={{ ...sx }}>
       <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      {isLoading ? (
+      {isFetching ? (
         <h6>Loading...</h6>
       ) : isError || emails.length === 0 ? (
         <h6>No emails found</h6>
