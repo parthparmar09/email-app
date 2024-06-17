@@ -57,7 +57,11 @@ const createEmail = async (req, res) => {
 
   await email.save();
 
-  sendSuccess(res, "Email Created", { email, notFoundEmails });
+  if (isDraft) {
+    return sendSuccess(res, "Draft Saved");
+  }
+
+  sendSuccess(res, "Email Sent", notFoundEmails);
 };
 
 const getEmails = async (req, res) => {
