@@ -1,4 +1,4 @@
-import { EmailOutlined, FiberManualRecordRounded } from "@mui/icons-material";
+import { FiberManualRecordRounded } from "@mui/icons-material";
 import { Avatar, Box, ListItemButton, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { selectEmail } from "@app";
@@ -17,6 +17,7 @@ function EmailListItem({ email }) {
 
   const handleEmailClick = () => {
     dispatch(selectEmail(email));
+    setIsRead(true);
     !isRead &&
       updateEmailMetadata({
         emailId: email._id,

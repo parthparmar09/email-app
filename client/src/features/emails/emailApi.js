@@ -66,9 +66,6 @@ export const emailApi = createApi({
         method: "PATCH",
         body: update,
       }),
-      invalidatesTags: (result, error, { emailId }) => [
-        { type: "Email", id: emailId },
-      ],
     }),
   }),
 });

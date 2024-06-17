@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
-import { CategoryList, ComposeButton, UserLabels, UserMenu } from "@components";
+import { CategoryList, ComposeButton } from "@components";
+import { UserMenu } from "@features/users";
 import logo from "@assets/logo.png";
 
 function SideBar({ sx }) {
@@ -16,7 +17,6 @@ function SideBar({ sx }) {
       <Box component="img" src={logo} sx={{ height: 60 }} />
       <ComposeButton />
       <CategoryList />
-      <UserLabels />
       <UserMenu />
     </Box>
   );

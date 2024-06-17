@@ -1,5 +1,5 @@
 function UserLabels() {
-  return <div>UserLabels</div>;
+  return <div></div>;
 }
 
 export default UserLabels;

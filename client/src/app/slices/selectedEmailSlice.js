@@ -9,8 +9,14 @@ const selectedEmailSlice = createSlice({
     selectEmail(state, action) {
       return action.payload;
     },
+    updateMetadata(state, action) {
+      state.userMetadata[action.payload.userId] = {
+        ...state.userMetadata[action.payload.userId],
+        ...action.payload.update,
+      };
+    },
   },
 });
 
-export const { selectEmail } = selectedEmailSlice.actions;
+export const { selectEmail, updateMetadata } = selectedEmailSlice.actions;
 export default selectedEmailSlice.reducer;

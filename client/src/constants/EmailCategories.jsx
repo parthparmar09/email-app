@@ -10,7 +10,7 @@ import {
 } from "@mui/icons-material";
 
 export const EmailCategories = {
-  All: <EmailRounded />,
+  // All: <EmailRounded />,
   Inbox: <InboxRounded />,
   Sent: <SendRounded />,
   Drafts: <DraftsRounded />,

@@ -10,6 +10,7 @@ function Main({ children }) {
         height: "100vh",
         p: 3,
         bgcolor: "grey.main",
+        position: "relative",
       }}
     >
       <SideBar sx={{ flex: 0.15 }} />

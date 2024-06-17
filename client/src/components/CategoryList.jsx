@@ -25,7 +25,6 @@ function CategoryList() {
 
               <Typography fontWeight="500">{cat}</Typography>
             </Box>
-            <Typography>{Math.floor(Math.random() * 10)}</Typography>
           </ListItemButton>
         </ListItem>
       ))}

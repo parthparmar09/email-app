@@ -1,12 +1,35 @@
 const Email = require("../models/emailModel");
 const { sendSuccess } = require("../utils/helperFunctions");
 const MyError = require("../errors/MyError");
+const User = require("../models/userModel");
 
 const createEmail = async (req, res) => {
   const { isDraft, recipientIds, ccIds, bccIds, subject, body, attachments } =
     req.body;
 
   const senderId = req.user._id;
+
+  const allEmailIds = [...recipientIds, ...ccIds, ...bccIds];
+  const users = await User.find({ email: { $in: allEmailIds } });
+
+  const emailToIdMap = {};
+  const notFoundEmails = [];
+
+  users.forEach((user) => {
+    emailToIdMap[user.email] = user._id;
+  });
+
+  notFoundEmails.push(...allEmailIds.filter((email) => !emailToIdMap[email]));
+
+  if (notFoundEmails.length === allEmailIds.length) {
+    throw new MyError(404, "No users found");
+  }
+
+  const mapEmailsToIds = (emails) => emails.map((email) => emailToIdMap[email]);
+
+  recipientIds = mapEmailsToIds(recipientIds);
+  ccIds = mapEmailsToIds(ccIds);
+  bccIds = mapEmailsToIds(bccIds);
 
   const allRecipientIds = [...recipientIds, ...ccIds, ...bccIds, senderId];
   const userMetadata = allRecipientIds.reduce((acc, recipientId) => {
@@ -33,7 +56,8 @@ const createEmail = async (req, res) => {
   });
 
   await email.save();
-  sendSuccess(res, "Email Created", email);
+
+  sendSuccess(res, "Email Created", { email, notFoundEmails });
 };
 
 const getEmails = async (req, res) => {
@@ -42,10 +66,6 @@ const getEmails = async (req, res) => {
   let query = { $and: [{ [`userMetadata.${userId}`]: { $exists: true } }] };
 
   switch (category) {
-    case "inbox":
-      query.isDraft = false;
-      query.senderId = { $ne: userId };
-      break;
     case "starred":
       query[`userMetadata.${userId}.isStarred`] = true;
       break;
@@ -55,8 +75,16 @@ const getEmails = async (req, res) => {
     case "important":
       query[`userMetadata.${userId}.isImportant`] = true;
       break;
+    case "spam":
+      query[`userMetadata.${userId}.isSpam`] = true;
+      break;
+    case "inbox":
+      query.isDraft = false;
+      query.senderId = { $ne: userId };
+      break;
     case "drafts":
       query.isDraft = true;
+      query.senderId = userId;
       break;
     case "sent":
       query.isDraft = false;
@@ -69,7 +97,7 @@ const getEmails = async (req, res) => {
   // Add filters based on search term
   if (searchTerm) {
     const regex = new RegExp(searchTerm, "i");
-    query.$and = [{ subject: regex }];
+    query.$or = [{ subject: regex }, { body: regex }];
   }
 
   let emails;
@@ -128,17 +156,15 @@ const updateRecipientMetadata = async (req, res) => {
     throw new MyError(404, "Email not found");
   }
 
-  if (!email.userMetadata[userId]) {
+  const metadata = email.userMetadata.get(userId);
+  if (!metadata) {
     throw new MyError(404, "Recipient not found");
   }
 
-  email.userMetadata[userId] = {
-    ...email.userMetadata[userId],
-    ...update,
-  };
+  email.userMetadata.set(userId, { ...metadata, ...update });
 
   await email.save();
-  sendSuccess(res, "Email Updated", email);
+  sendSuccess(res, "Email Updated");
 };
 
 module.exports = {
