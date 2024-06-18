@@ -7,16 +7,21 @@ import {
 } from "@mui/icons-material";
 import { Box, Button, IconButton, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useUpdateRecipientMetadataMutation } from "./emailApi";
+import {
+  useDeleteEmailMutation,
+  useUpdateRecipientMetadataMutation,
+} from "./emailApi";
 import { updateMetadata } from "@app";
 import { openCompose } from "./emailComposeSlice";
 import { selectEmail } from "@app";
+import toast from "react-hot-toast";
 
 function EmailHeader({ commonStyles }) {
   const user = useSelector((state) => state.user);
   const email = useSelector((state) => state.selectedEmail);
   const metaData = email?.userMetadata[user?._id];
   const [updateEmailMetadata] = useUpdateRecipientMetadataMutation();
+  const [deleteEmail] = useDeleteEmailMutation();
   const dispatch = useDispatch();
 
   const EmailOptions = [
@@ -49,10 +54,10 @@ function EmailHeader({ commonStyles }) {
       condition: metaData?.isRead,
       icon: (
         <MarkEmailUnreadRounded
-          sx={{ color: metaData?.isRead && "primary.light" }}
+          sx={{ color: !metaData?.isRead && "primary.light" }}
         />
       ),
-      tooltipText: metaData?.isRead ? "Mark Read" : "Mark Unread",
+      tooltipText: !metaData?.isRead ? "Mark Read" : "Mark Unread",
       update: {
         isRead: !metaData?.isRead,
       },
@@ -92,6 +97,17 @@ function EmailHeader({ commonStyles }) {
     dispatch(selectEmail(null));
   };
 
+  const handleDelete = async () => {
+    const { error } = await deleteEmail(email?._id);
+    if (error) {
+      console.log(error);
+      toast.error(error.data.message);
+      return;
+    }
+    toast.success("Email deleted");
+    dispatch(selectEmail(null));
+  };
+
   return (
     <Box
       className="flex-centered"
@@ -101,14 +117,25 @@ function EmailHeader({ commonStyles }) {
         py: 1,
       }}
     >
-      <Button
-        startIcon={<EditRounded />}
-        sx={{ visibility: email?.isDraft ? "visible" : "hidden" }}
-        onClick={handleOpenDraft}
-        variant="outlined"
-      >
-        Edit Draft
-      </Button>
+      <Box className="flex-centered" sx={{ gap: 1 }}>
+        <Button
+          startIcon={<EditRounded />}
+          sx={{ display: email?.isDraft ? "default" : "none" }}
+          onClick={handleOpenDraft}
+          variant="outlined"
+        >
+          Edit Draft
+        </Button>
+        <Button
+          startIcon={<DeleteRounded />}
+          sx={{ display: metaData?.isTrashed ? "default" : "none" }}
+          onClick={handleDelete}
+          variant="contained"
+          color="error"
+        >
+          Delete
+        </Button>
+      </Box>
       <Box className="flex-cenetered">
         {EmailOptions.map((opt, i) => (
           <Tooltip key={i} title={opt.tooltipText}>

@@ -170,15 +170,26 @@ const updateRecipientMetadata = async (req, res) => {
     throw new MyError(404, "Email not found");
   }
 
-  const metadata = email.userMetadata.get(userId);
-  if (!metadata) {
+  if (!email.userMetadata.get(userId)) {
     throw new MyError(404, "Recipient not found");
   }
 
-  email.userMetadata.set(userId, { ...metadata, ...update });
+  const updateKey = Object.keys(update)[0];
+  const updateValue = update[updateKey];
 
-  await email.save();
-  sendSuccess(res, "Email Updated");
+  const updatePath = `userMetadata.${userId}.${updateKey}`;
+
+  const updatedEmail = await Email.findByIdAndUpdate(
+    emailId,
+    { $set: { [updatePath]: updateValue } },
+    { new: true }
+  );
+
+  if (!updatedEmail) {
+    throw new MyError(404, "Email not found after update");
+  }
+
+  sendSuccess(res, "Email Updated", updatedEmail);
 };
 
 module.exports = {

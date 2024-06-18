@@ -16,8 +16,8 @@ function EmailListItem({ email }) {
   );
 
   const handleEmailClick = () => {
-    dispatch(selectEmail(email));
     setIsRead(true);
+    dispatch(selectEmail(email));
     !isRead &&
       updateEmailMetadata({
         emailId: email._id,

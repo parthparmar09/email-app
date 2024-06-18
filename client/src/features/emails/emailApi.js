@@ -22,13 +22,7 @@ export const emailApi = createApi({
         url: "emails",
         params: { page, limit, category, searchTerm },
       }),
-      providesTags: (result, error, { category }) =>
-        result
-          ? [
-              ...result.data.emails.map(({ id }) => ({ type: "Email", id })),
-              { type: "Email", id: category },
-            ]
-          : [{ type: "Email", id: category }],
+      providesTags: ["Email"],
     }),
     getEmailById: builder.query({
       query: (id) => `emails/${id}`,
@@ -40,22 +34,15 @@ export const emailApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: [{ type: "Email", id: "ALL" }],
+      invalidatesTags: ["Email"],
     }),
-    updateEmail: builder.mutation({
-      query: ({ id, updatedEmail }) => ({
-        url: `emails/${id}`,
-        method: "PUT",
-        body: updatedEmail,
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Email", id }],
-    }),
+
     deleteEmail: builder.mutation({
       query: (id) => ({
         url: `emails/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Email", id }],
+      invalidatesTags: ["Email"],
     }),
     updateRecipientMetadata: builder.mutation({
       query: ({ emailId, update }) => ({
@@ -63,9 +50,7 @@ export const emailApi = createApi({
         method: "PATCH",
         body: update,
       }),
-      invalidatesTags: (result, error, { emailId, update }) => {
-        return [{ type: "Email", id: "ALL" }];
-      },
+      invalidatesTags: ["Email"],
     }),
   }),
 });
@@ -74,7 +59,6 @@ export const {
   useGetEmailsQuery,
   useGetEmailByIdQuery,
   useCreateEmailMutation,
-  useUpdateEmailMutation,
   useDeleteEmailMutation,
   useUpdateRecipientMetadataMutation,
 } = emailApi;
