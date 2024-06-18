@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { emailApi } from "@features/emails/";
+import { emailApi, emailComposeSlice } from "@features/emails/";
 import { userApi, userSlice } from "@features/users";
 import { authApi } from "@features/auth";
 import categoryReducer from "./slices/categorySlice";
@@ -11,6 +11,7 @@ const store = configureStore({
     [emailApi.reducerPath]: emailApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     user: userSlice.reducer,
+    emailCompose: emailComposeSlice.reducer,
     category: categoryReducer,
     selectedEmail: selectedEmailReducer,
   },

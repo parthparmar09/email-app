@@ -3,7 +3,7 @@ const { sendSuccess } = require("../utils/helperFunctions");
 const MyError = require("../errors/MyError");
 
 const getUser = async (req, res, next) => {
-  const userId = req.params.id;
+  const userId = req.user._id;
 
   const user = await User.findById(userId);
   if (!user) {
@@ -14,7 +14,7 @@ const getUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-  const userId = req.params.id;
+  const userId = req.user._id;
   const updatedData = req.body;
 
   const user = await User.findByIdAndUpdate(userId, updatedData, { new: true });
@@ -26,7 +26,7 @@ const updateUser = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
-  const userId = req.params.id;
+  const userId = req.user._id;
 
   const user = await User.findByIdAndDelete(userId);
   if (!user) {

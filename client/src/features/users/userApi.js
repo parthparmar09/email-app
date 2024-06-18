@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "/api",
+  baseUrl: import.meta.env.VITE_BASE_URL + "/api",
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -16,11 +16,11 @@ export const userApi = createApi({
   baseQuery,
   endpoints: (builder) => ({
     getUserData: builder.query({
-      query: () => "user",
+      query: () => "users",
     }),
     updateUser: builder.mutation({
-      query: ({ userId, userData }) => ({
-        url: `user/${userId}`,
+      query: (userData) => ({
+        url: `users`,
         method: "PUT",
         body: userData,
       }),

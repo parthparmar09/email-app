@@ -4,7 +4,7 @@ const MyError = require("../errors/MyError");
 const User = require("../models/userModel");
 
 const createEmail = async (req, res) => {
-  const { isDraft, recipientIds, ccIds, bccIds, subject, body, attachments } =
+  let { isDraft, recipientIds, ccIds, bccIds, subject, body, attachments } =
     req.body;
 
   const senderId = req.user._id;
@@ -43,19 +43,37 @@ const createEmail = async (req, res) => {
     return acc;
   }, {});
 
-  const email = new Email({
-    senderId,
-    isDraft,
-    recipientIds,
-    ccIds,
-    bccIds,
-    subject,
-    body,
-    attachments,
-    userMetadata,
-  });
-
-  await email.save();
+  if (req.params.id) {
+    await Email.findByIdAndUpdate(
+      req.params.id,
+      {
+        senderId,
+        isDraft,
+        recipientIds,
+        ccIds,
+        bccIds,
+        subject,
+        body,
+        attachments,
+        userMetadata,
+      },
+      {
+        new: true,
+      }
+    );
+  } else {
+    await Email.create({
+      senderId,
+      isDraft,
+      recipientIds,
+      ccIds,
+      bccIds,
+      subject,
+      body,
+      attachments,
+      userMetadata,
+    });
+  }
 
   if (isDraft) {
     return sendSuccess(res, "Draft Saved");
@@ -98,7 +116,9 @@ const getEmails = async (req, res) => {
       break;
   }
 
-  // Add filters based on search term
+  if (category !== "trash") {
+    query[`userMetadata.${userId}.isTrashed`] = false;
+  }
   if (searchTerm) {
     const regex = new RegExp(searchTerm, "i");
     query.$or = [{ subject: regex }, { body: regex }];
@@ -129,16 +149,6 @@ const getEmailById = async (req, res) => {
     throw new MyError(404, "Email not found");
   }
   sendSuccess(res, "Email fetched", email);
-};
-
-const updateEmail = async (req, res) => {
-  const email = await Email.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-  if (!email) {
-    throw new MyError(404, "Email not found");
-  }
-  sendSuccess(res, "Email Updated", email);
 };
 
 const deleteEmail = async (req, res) => {
@@ -175,7 +185,6 @@ module.exports = {
   createEmail,
   getEmails,
   getEmailById,
-  updateEmail,
   deleteEmail,
   updateRecipientMetadata,
 };

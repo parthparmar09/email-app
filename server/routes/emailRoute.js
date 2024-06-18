@@ -4,14 +4,13 @@ const {
   createEmail,
   deleteEmail,
   getEmails,
-  updateEmail,
   getEmailById,
   updateRecipientMetadata,
 } = require("../controllers/emailController");
 
-router.route("/").post(createEmail).get(getEmails);
+router.route("/").get(getEmails).post(createEmail);
 
-router.route("/:id").get(getEmailById).put(updateEmail).delete(deleteEmail);
+router.route("/:id").get(getEmailById).post(createEmail).delete(deleteEmail);
 
 router.patch("/:emailId/metadata", updateRecipientMetadata);
 

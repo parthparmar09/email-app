@@ -1,13 +1,16 @@
 import {
   DeleteRounded,
+  EditRounded,
   LabelImportantRounded,
   MarkEmailUnreadRounded,
   StarRounded,
 } from "@mui/icons-material";
-import { Box, Chip, IconButton, Tooltip } from "@mui/material";
+import { Box, Button, IconButton, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useUpdateRecipientMetadataMutation } from "./emailApi";
 import { updateMetadata } from "@app";
+import { openCompose } from "./emailComposeSlice";
+import { selectEmail } from "@app";
 
 function EmailHeader({ commonStyles }) {
   const user = useSelector((state) => state.user);
@@ -75,6 +78,20 @@ function EmailHeader({ commonStyles }) {
     });
   };
 
+  const handleOpenDraft = () => {
+    const emailData = {
+      _id: email._id,
+      subject: email.subject,
+      body: email.body,
+      recipientIds: email.recipientIds.map((r) => r.email),
+      ccIds: email.ccIds.map((r) => r.email),
+      bccIds: email.bccIds.map((r) => r.email),
+    };
+
+    dispatch(openCompose(emailData));
+    dispatch(selectEmail(null));
+  };
+
   return (
     <Box
       className="flex-centered"
@@ -84,16 +101,14 @@ function EmailHeader({ commonStyles }) {
         py: 1,
       }}
     >
-      <Box>
-        <Chip
-          label="draft"
-          variant="filled"
-          sx={{
-            borderRadius: 2,
-            visibility: email.isDraft ? "visible" : "hidden",
-          }}
-        />
-      </Box>
+      <Button
+        startIcon={<EditRounded />}
+        sx={{ visibility: email?.isDraft ? "visible" : "hidden" }}
+        onClick={handleOpenDraft}
+        variant="outlined"
+      >
+        Edit Draft
+      </Button>
       <Box className="flex-cenetered">
         {EmailOptions.map((opt, i) => (
           <Tooltip key={i} title={opt.tooltipText}>

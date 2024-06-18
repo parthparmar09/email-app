@@ -15,7 +15,7 @@ const baseQuery = fetchBaseQuery({
 export const emailApi = createApi({
   reducerPath: "emailApi",
   baseQuery,
-  tagTypes: ["Email", "EmailList"],
+  tagTypes: ["Email"],
   endpoints: (builder) => ({
     getEmails: builder.query({
       query: ({ page, limit, category, searchTerm }) => ({
@@ -25,25 +25,22 @@ export const emailApi = createApi({
       providesTags: (result, error, { category }) =>
         result
           ? [
-              { type: "EmailList", id: category },
-              ...result.data.emails.map(({ _id }) => ({
-                type: "Email",
-                id: _id,
-              })),
+              ...result.data.emails.map(({ id }) => ({ type: "Email", id })),
+              { type: "Email", id: category },
             ]
-          : [{ type: "EmailList", id: category }],
+          : [{ type: "Email", id: category }],
     }),
     getEmailById: builder.query({
       query: (id) => `emails/${id}`,
       providesTags: (result, error, id) => [{ type: "Email", id }],
     }),
     createEmail: builder.mutation({
-      query: (newEmail) => ({
-        url: "emails",
+      query: ({ data, id }) => ({
+        url: `emails/${id}`,
         method: "POST",
-        body: newEmail,
+        body: data,
       }),
-      invalidatesTags: [{ type: "EmailList", id: "ALL" }],
+      invalidatesTags: [{ type: "Email", id: "ALL" }],
     }),
     updateEmail: builder.mutation({
       query: ({ id, updatedEmail }) => ({
@@ -66,6 +63,9 @@ export const emailApi = createApi({
         method: "PATCH",
         body: update,
       }),
+      invalidatesTags: (result, error, { emailId, update }) => {
+        return [{ type: "Email", id: "ALL" }];
+      },
     }),
   }),
 });

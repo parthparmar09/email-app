@@ -1,5 +1,6 @@
 import { ThemeProvider, createTheme } from "@mui/material";
 import { Routes } from "@routes";
+import { Toaster } from "react-hot-toast";
 
 const theme = createTheme({
   palette: {
@@ -46,6 +47,15 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Routes />
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            fontFamily: "Poppins",
+          },
+        }}
+      />
     </ThemeProvider>
   );
 }
